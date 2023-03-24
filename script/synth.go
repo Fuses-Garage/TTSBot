@@ -5,10 +5,9 @@ import (
 	"net/url"
 	"bytes"
 	"io"
-	"github.com/oov/audio"
-	"github.com/oov/audio/wave"
+	"github.com/bwmarrin/discordgo"
 )
-
+var vcsession *discordgo.VoiceConnection
 func GetBinary(s string)([]byte) {
 	url_query:="http://localhost:50021/audio_query?text="+url.QueryEscape(s)+"&speaker=1"
 	req, _ := http.NewRequest("POST", url_query, nil)
@@ -33,4 +32,19 @@ func GetBinary(s string)([]byte) {
 		panic(err)
 	}
 	return buff.Bytes()
+}
+func BinaryToWaves(b []byte){
+
+}
+func Play(b []byte,vc *discordgo.VoiceConnection) {
+	vc.Speaking(true)
+	defer vc.Speaking(false)
+
+	
+}
+func Connect(s *discordgo.Session,m *discordgo.MessageCreate){
+	vcsession, _ = s.ChannelVoiceJoin(m.GuildID, "VOICE_CHANNEL_ID", false, false)
+}
+func Disconnect(){
+	vcsession.Disconnect()
 }
