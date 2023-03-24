@@ -43,7 +43,23 @@ func Play(b []byte,vc *discordgo.VoiceConnection) {
 	
 }
 func Connect(s *discordgo.Session,m *discordgo.MessageCreate){
-	vcsession, _ = s.ChannelVoiceJoin(m.GuildID, "VOICE_CHANNEL_ID", false, false)
+	userstate,_:=s.State.VoiceState(m.GuildID,m.Author.ID)
+	if userstate==nil{
+		embed:=&discordgo.MessageEmbed{
+			Author:&discordgo.MessageEmbedAuthor{},
+			Color:0x880088,
+			Fields: []*discordgo.MessageEmbedField{
+				&discordgo.MessageEmbedField{
+					Name:   "エラーが発生しました。",
+					Value:  "呼び出し時はボイスチャンネルに入室してください。",
+					Inline: true,
+				},
+			},
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID,embed)
+		return
+	}
+	vcsession, _ = s.ChannelVoiceJoin(m.GuildID,userstate.ChannelID, false, false)
 }
 func Disconnect(){
 	vcsession.Disconnect()
