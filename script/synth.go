@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"github.com/bwmarrin/discordgo"
+	"github.com/bwmarrin/dgvoice"
 )
 type VCData struct{
 	connection *discordgo.VoiceConnection
@@ -17,7 +18,7 @@ var VCDict map[string]VCData
 
 func GetBinary(s string)([]byte) {
 	
-	url_query:="http://localhost:50021/audio_query?text="+url.QueryEscape(s)+"&speaker=1"
+	url_query:="http://localhost:50021/audio_query?text="+url.QueryEscape(s)+"&speaker=8"
 	req, _ := http.NewRequest("POST", url_query, nil)
 	req.Header.Set("accept","application/json")
 
@@ -26,7 +27,7 @@ func GetBinary(s string)([]byte) {
 	if err!=nil {
 		panic(err)
 	}
-	url_synth:="http://localhost:50021/synthesis?speaker=1&enable_interrogative_upspeak=true"
+	url_synth:="http://localhost:50021/synthesis?speaker=8&enable_interrogative_upspeak=true"
 	req_s, _ := http.NewRequest("POST", url_synth, resp.Body)
 	req_s.Header.Set("accept","application/json")
 	req_s.Header.Set("Content-Type","application/json")
@@ -46,6 +47,7 @@ func TTS(m *discordgo.MessageCreate){
 	if ok {
 		if v.channelID==m.ChannelID{
 			MakeWaveFile(GetBinary(m.Content))
+			Play(v.connection)
 		}
 	}
 }
@@ -54,12 +56,11 @@ func MakeWaveFile(b []byte){
 	defer file.Close()
 	file.Write(b)
 }
-func Play(opus [][]byte,vc *discordgo.VoiceConnection) {
+func Play(vc *discordgo.VoiceConnection) {
+
 	vc.Speaking(true)
 	defer vc.Speaking(false)
-	for _, f := range opus {
-		vc.OpusSend <- f
-	}
+	dgvoice.PlayAudioFile(vc,"result.wav",make(chan bool))
 	
 }
 func Connect(s *discordgo.Session,m *discordgo.MessageCreate){
