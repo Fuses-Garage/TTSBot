@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"bytes"
 	"io"
+	"os"
 	"github.com/bwmarrin/discordgo"
 )
 type VCData struct{
@@ -40,9 +41,18 @@ func GetBinary(s string)([]byte) {
 	}
 	return buff.Bytes()
 }
-
-func WaveToOpus(b []byte){
-
+func TTS(m *discordgo.MessageCreate){
+	v,ok:=VCDict[m.GuildID]
+	if ok {
+		if v.channelID==m.ChannelID{
+			MakeWaveFile(GetBinary(m.Content))
+		}
+	}
+}
+func MakeWaveFile(b []byte){
+	file, _ := os.Create("result.wav")
+	defer file.Close()
+	file.Write(b)
 }
 func Play(opus [][]byte,vc *discordgo.VoiceConnection) {
 	vc.Speaking(true)

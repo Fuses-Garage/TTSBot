@@ -19,6 +19,8 @@ func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {//メッ
 				case "e":
 					Disconnect(s,m) //今いる通話チャンネルから抜ける
 			}
+		}else{
+			TTS(m)//読み上げ機能を呼び出す
 		}
 	}
  }
