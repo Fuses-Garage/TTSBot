@@ -4,15 +4,21 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"strings"
 )
-
+var(
+	prefix string="!tts"
+)
 func OnMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {//メッセージが投稿されたら呼ばれます
 	u := m.Author//uはmの発信者
 	if !u.Bot {//発信元が人間なら
-		switch {
-			case strings.HasPrefix(m.Content,"!tts s"):
-				Connect(s,m)
-			case strings.HasPrefix(m.Content,"!tts e"):
-				Disconnect() //今いる通話チャンネルから抜ける
+		if(strings.HasPrefix(m.Content,prefix)){
+			command:=strings.Split(m.Content," ")
+			switch command[1]{
+			
+				case "s":
+					Connect(s,m)//接続処理
+				case "e":
+					Disconnect(s,m) //今いる通話チャンネルから抜ける
+			}
 		}
 	}
  }
